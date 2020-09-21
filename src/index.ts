@@ -25,6 +25,11 @@ class Goodmorning extends Command {
       default: false,
       description: 'bootstrap a new goodmorning config',
     }),
+    profile: flags.string({
+      char: 'p',
+      description: 'use a profile over the default.',
+      default: 'default',
+    }),
   }
 
   static args = [{ name: 'profile' }]
@@ -34,29 +39,35 @@ class Goodmorning extends Command {
 
     if (flags.init) return init()
 
-    const exists = await stat(location)
-
-    console.log(exists)
-
-    if (!exists) {
-      const { init } = await prompt([
+    try {
+      await stat(location)
+    } catch (error) {
+      const { createInit } = await prompt([
         {
-          name: 'init',
+          name: 'createInit',
           type: 'confirm',
           message: 'No config file found. Would you like to create one?',
         },
       ])
 
-      if (init) {
+      if (createInit) {
         return init()
       } else {
-        process.exit()
+        return process.exit()
       }
     }
 
-    console.log(
-      JSON.stringify(yaml.safeLoad(fs.readFileSync(location, 'utf8')), null, 2)
-    )
+    const config = fs.readFileSync(location, 'utf8')
+    const profiles = yaml.safeLoad(config, { json: true })
+
+    if (typeof profiles === 'object' && profiles !== null) {
+      const keys = Object.keys(profiles)
+      let target = flags.profile
+
+      // const profile = profiles[target]
+
+      console.log(target)
+    }
   }
 }
 

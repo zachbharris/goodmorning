@@ -16,21 +16,26 @@ async function init() {
   const dir = join(homedir(), filename)
 
   // check if config already exists
-  const configExists = await stat(dir)
+  try {
+    const alreadyExists = await stat(dir)
 
-  // prompt user to confirm overwrite if file already exists
-  if (configExists) {
-    const { overwrite } = await prompt([
-      {
-        name: 'overwrite',
-        type: 'confirm',
-        message: `${chalk.green(filename)} already exists. Overwrite?`,
-        default: false,
-      },
-    ])
+    // prompt user to confirm overwrite if file already exists
 
-    // exit if the user does not wish to overwrite their existing config
-    if (!overwrite) process.exit()
+    if (alreadyExists) {
+      const { overwrite } = await prompt([
+        {
+          name: 'overwrite',
+          type: 'confirm',
+          message: `${chalk.green(filename)} already exists. Overwrite?`,
+          default: false,
+        },
+      ])
+
+      // exit if the user does not wish to overwrite their existing config
+      if (!overwrite) process.exit()
+    }
+  } catch (error) {
+    // do nothing
   }
 
   // initialize spinner
