@@ -1,16 +1,18 @@
 import { Command, flags } from '@oclif/command'
 import { promisify } from 'util'
 import { homedir } from 'os'
+import { prompt } from 'inquirer'
 import * as fs from 'fs'
+import * as yaml from 'js-yaml'
 
 // scripts
 import init from './scripts/init'
 
 // config
-import { filename } from 'config'
+import { location } from './config'
 
 // promises
-const readFile = promisify(fs.readFile)
+const stat = promisify(fs.stat)
 
 class Goodmorning extends Command {
   static description = 'describe the command here'
@@ -29,11 +31,32 @@ class Goodmorning extends Command {
 
   async run() {
     const { args, flags } = this.parse(Goodmorning)
-    const config = await readFile(homedir())
 
     if (flags.init) return init()
 
-    console.log('back to normal captain!')
+    const exists = await stat(location)
+
+    console.log(exists)
+
+    if (!exists) {
+      const { init } = await prompt([
+        {
+          name: 'init',
+          type: 'confirm',
+          message: 'No config file found. Would you like to create one?',
+        },
+      ])
+
+      if (init) {
+        return init()
+      } else {
+        process.exit()
+      }
+    }
+
+    console.log(
+      JSON.stringify(yaml.safeLoad(fs.readFileSync(location, 'utf8')), null, 2)
+    )
   }
 }
 
