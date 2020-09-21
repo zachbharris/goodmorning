@@ -1,18 +1,18 @@
-import { homedir } from "os"
-import { join } from "path"
-import * as fs from "fs"
-import { promisify } from "util"
-import * as yaml from "js-yaml"
-import * as ora from "ora"
-import * as chalk from "chalk"
-import { prompt } from "inquirer"
+import { homedir } from 'os'
+import { join } from 'path'
+import * as fs from 'fs'
+import { promisify } from 'util'
+import * as yaml from 'js-yaml'
+import * as ora from 'ora'
+import * as chalk from 'chalk'
+import { prompt } from 'inquirer'
 
 // promises
 const writeFile = promisify(fs.writeFile)
 const stat = promisify(fs.stat)
 
 async function init() {
-  const filename = ".goodmorning.yaml"
+  const filename = '.goodmorning.yaml'
   const dir = join(homedir(), filename)
 
   // check if config already exists
@@ -22,8 +22,8 @@ async function init() {
   if (configExists) {
     const { overwrite } = await prompt([
       {
-        name: "overwrite",
-        type: "confirm",
+        name: 'overwrite',
+        type: 'confirm',
         message: `${chalk.green(filename)} already exists. Overwrite?`,
         default: false,
       },
@@ -34,7 +34,7 @@ async function init() {
   }
 
   // initialize spinner
-  const spinner = ora("creating config").start()
+  const spinner = ora('creating config').start()
 
   // create base config
   const baseConfig = {
@@ -50,7 +50,7 @@ async function init() {
   await writeFile(dir, config)
 
   // set spinner to success
-  spinner.succeed("created config")
+  spinner.succeed('created config')
 
   // alert user to new file and location
   console.info(
